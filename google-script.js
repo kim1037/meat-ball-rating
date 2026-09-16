@@ -8,8 +8,9 @@
  * 4. 將部署後的 /exec 網址貼到 index.html 的 GAS_URL。
  */
 
-const SHEET_ID = "YOUR_GOOGLE_SHEET_ID";
+const SHEET_ID = "1zpUqyiIzH5-CDJqk_0J4zIO36AFfn-NvUPC9YF7iCCo";
 const SHEET_NAME = "Ratings";
+const SHEET_TIMEZONE = "Asia/Taipei";
 const HEADERS = [
   "timestamp",
   "shopId",
@@ -33,17 +34,50 @@ function setupSheet() {
     .setBackground("#1d5a6c")
     .setFontColor("#ffffff")
     .setFontWeight("bold");
+
+  // 發布的 CSV 會套用儲存格顯示格式。中文地區預設會輸出「2026/9/16 下午 2:30:00」，
+  // 前端的 new Date() 無法解析，因此固定成 ISO 8601 樣式；儲存格本身仍是日期型別，排序照常。
+  sheet.getRange(2, 1, sheet.getMaxRows() - 1, 1)
+    .setNumberFormat('yyyy-mm-dd"T"hh:mm:ss');
+
   sheet.autoResizeColumns(1, HEADERS.length);
 }
 
-/** 健康檢查：以瀏覽器開啟 /exec 網址時會看到此回應。 */
+/**
+ * 回傳全部評分。前端改以此取代發布的 CSV：
+ * 發布 CSV 由多個快取節點提供，實測同一時間的請求會隨機拿到新舊兩種版本，
+ * 使用者送出評分後重新整理有機率看到資料消失。此處直接讀試算表，沒有快取問題。
+ */
 function doGet() {
-  return jsonResponse_({
-    ok: true,
-    service: "彰化肉圓馬拉松評分 API",
-    sheet: SHEET_NAME,
-    time: new Date().toISOString(),
+  try {
+    const sheet = getOrCreateSheet_();
+    const lastRow = sheet.getLastRow();
+    const rows = lastRow < 2
+      ? []
+      : sheet.getRange(2, 1, lastRow - 1, HEADERS.length).getValues().map(rowToObject_);
+
+    return jsonResponse_({
+      ok: true,
+      service: "彰化肉圓馬拉松評分 API",
+      sheet: SHEET_NAME,
+      time: new Date().toISOString(),
+      count: rows.length,
+      ratings: rows,
+    });
+  } catch (error) {
+    console.error(error);
+    return jsonResponse_({ ok: false, message: error.message || "讀取失敗" });
+  }
+}
+
+function rowToObject_(row) {
+  const result = {};
+  HEADERS.forEach((key, index) => {
+    const value = row[index];
+    // 時間欄是日期型別，統一轉成 ISO 字串讓前端的 new Date() 能解析。
+    result[key] = value instanceof Date ? value.toISOString() : value;
   });
+  return result;
 }
 
 /** 接收前端以 text/plain 傳來的 JSON，驗證後寫入試算表。 */
@@ -96,6 +130,10 @@ function getOrCreateSheet_() {
     throw new Error("請先設定 google-script.js 的 SHEET_ID");
   }
   const spreadsheet = SpreadsheetApp.openById(SHEET_ID);
+  // 時區若與活動所在地不符，匯出的時間會整批位移。
+  if (spreadsheet.getSpreadsheetTimeZone() !== SHEET_TIMEZONE) {
+    spreadsheet.setSpreadsheetTimeZone(SHEET_TIMEZONE);
+  }
   return spreadsheet.getSheetByName(SHEET_NAME) || spreadsheet.insertSheet(SHEET_NAME);
 }
 

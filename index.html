@@ -634,7 +634,7 @@
 
     <div id="setupNotice" class="notice" role="status">
       <strong>設定提醒</strong>
-      <span>目前為尚未連線狀態。請依 README 將 index.html 內的 CSV_URL 與 GAS_URL 換成你的網址，即可啟用雲端讀寫。</span>
+      <span>目前為尚未連線狀態。請依 README 將 index.html 內的 GAS_URL 換成你的 Apps Script 網址，即可啟用雲端讀寫。</span>
     </div>
 
     <section id="shops" aria-labelledby="shopsTitle">
@@ -691,14 +691,12 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
   <script>
     "use strict";
 
-    // ===== 部署時只需要修改這兩行 =====
-    const CSV_URL = "YOUR_PUBLISHED_GOOGLE_SHEET_CSV_URL";
-    const GAS_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
+    // ===== 部署時只需要修改這一行 =====
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzNsrZAbMeRzXBrOewPWBs-hUc5s9xv0aJjcvNY0AQklBkwZ6esiqZnotiWGDSYXwwz/exec";
 
     // 店家清單可直接在此增刪。id 必須唯一，且部署後不宜任意變更。
     const SHOPS = [
@@ -834,30 +832,26 @@
       };
     }
 
-    function loadRatings() {
-      if (!isConfigured(CSV_URL)) {
+    async function loadRatings() {
+      if (!isConfigured(GAS_URL)) {
         els.notice.classList.add("show");
         return;
       }
-      if (typeof Papa === "undefined") {
-        showToast("PapaParse 載入失敗，請確認網路連線。", true);
-        return;
+      try {
+        const response = await fetch(GAS_URL, { redirect: "follow" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const result = await response.json();
+        if (!result.ok) throw new Error(result.message || "伺服器拒絕讀取");
+
+        const knownIds = new Set(SHOPS.map(shop => shop.id));
+        state.ratings = (result.ratings || [])
+          .map(normalizeRow)
+          .filter(row => knownIds.has(row.shopId) && row.reviewer);
+        renderCards();
+      } catch (error) {
+        console.error(error);
+        showToast("評分資料讀取失敗，請確認 GAS_URL 與網路連線。", true);
       }
-      Papa.parse(CSV_URL, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete(results) {
-          const knownIds = new Set(SHOPS.map(shop => shop.id));
-          state.ratings = results.data.map(normalizeRow).filter(row => knownIds.has(row.shopId) && row.reviewer);
-          renderCards();
-          if (results.errors.length) console.warn("CSV 部分資料無法解析：", results.errors);
-        },
-        error(error) {
-          console.error(error);
-          showToast("評分資料讀取失敗，請確認 CSV 已發布到網路。", true);
-        }
-      });
     }
 
     function findShop(shopId) {
@@ -876,9 +870,24 @@
       openDialog(els.ratingDialog);
     }
 
+    // 試算表匯出 CSV 時會套用顯示格式，中文地區會輸出「2026/9/16 下午 2:30:00」，new Date() 無法解析。
+    function parseSheetDate(value) {
+      const text = String(value ?? "").trim();
+      if (!text) return null;
+
+      const direct = new Date(text);
+      if (!Number.isNaN(direct.getTime())) return direct;
+
+      const zh = text.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})\s+(上午|下午)\s*(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+      if (!zh) return null;
+
+      const hour = Number(zh[5]) % 12 + (zh[4] === "下午" ? 12 : 0);
+      return new Date(Number(zh[1]), Number(zh[2]) - 1, Number(zh[3]), hour, Number(zh[6]), Number(zh[7] || 0));
+    }
+
     function dateLabel(value) {
-      const date = new Date(value);
-      if (!value || Number.isNaN(date.getTime())) return "日期未記錄";
+      const date = parseSheetDate(value);
+      if (!date) return "日期未記錄";
       return new Intl.DateTimeFormat("zh-TW", { dateStyle: "medium", timeStyle: "short" }).format(date);
     }
 
@@ -1029,7 +1038,7 @@
     });
 
     els.ratingForm.addEventListener("submit", submitRating);
-    if (!isConfigured(CSV_URL) || !isConfigured(GAS_URL)) els.notice.classList.add("show");
+    if (!isConfigured(GAS_URL)) els.notice.classList.add("show");
     renderScoreFields();
     renderCards();
     loadRatings();

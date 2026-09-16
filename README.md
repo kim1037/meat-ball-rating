@@ -1,10 +1,10 @@
 # 彰化肉圓馬拉松
 
-純前端單頁網站，可直接部署到 GitHub Pages。評分資料由 Google 試算表提供 CSV 讀取，並透過 Google Apps Script Web App 寫入。
+純前端單頁網站，可直接部署到 GitHub Pages。評分資料的讀寫都經由同一支 Google Apps Script Web App，試算表本身維持私人、不需要對外發布。
 
 ## 專案檔案
 
-- `index.html`：完整 SPA、台味復古視覺、評分表單、CSV 讀取與 Chart.js 雷達圖。
+- `index.html`：完整 SPA、台味復古視覺、評分表單、評分讀取與 Chart.js 雷達圖。
 - `google-script.js`：貼入 Google Apps Script 的後端程式。
 - `image/main_post.jpg`：活動主視覺原圖（1536×1024）。
 - `image/og-poster.jpg`：分享預覽圖（1200×630，由主視覺產生，見下方「分享預覽圖」）。
@@ -38,7 +38,13 @@
    ```
 
    改成第 1 步取得的試算表 ID。
-4. 在函式選單選取 `setupSheet`，按「執行」，依畫面完成 Google 授權。執行後會自動建立欄位及格式。
+4. 在函式選單選取 `setupSheet`，按「執行」，依畫面完成 Google 授權。執行後會自動：
+
+   - 建立 `Ratings` 工作表與標題列、凍結首列
+   - 將試算表時區設為 `Asia/Taipei`（`SHEET_TIMEZONE`）
+   - 把 `timestamp` 欄的顯示格式固定成 ISO 8601（`yyyy-mm-ddThh:mm:ss`）
+
+   時間格式這一項是必要的：發布的 CSV 會套用儲存格顯示格式，中文地區預設會輸出「2026/9/16 下午 2:30:00」，前端 `new Date()` 解析不了，歷史評分的日期會全部顯示「日期未記錄」。若試算表是在加入此設定前建立的，請重新執行一次 `setupSheet`。
 5. 右上角選擇「部署 → 新增部署作業 → 網頁應用程式」，設定：
 
    - 執行身分：**我**
@@ -53,28 +59,33 @@
 
 Apps Script 的 `ContentService` 不提供自行加入 `Access-Control-Allow-Origin` 標頭的 API。這份前端以 `Content-Type: text/plain` 傳送 JSON，屬於瀏覽器的 CORS「簡單請求」，不會送出 GAS 無法處理的 `OPTIONS` 預檢；Web App 必須發布為「任何人」才能讓 GitHub Pages 寫入。請勿把 Content-Type 改為 `application/json`，否則會觸發預檢而失敗。
 
-## 3. 發布試算表 CSV
+## 3. 為什麼不用發布的 CSV
 
-1. 回到 Google 試算表，選擇「檔案 → 共用 → 發布到網路」。
-2. 選擇單一工作表 `Ratings`，格式選「逗號分隔值 (.csv)」。
-3. 按「發布」並複製網址，格式通常類似：
+早期版本以「發布到網路」的 CSV 當讀取來源，已改掉。原因是該 CSV 由多個快取節點提供，實測同一時間連續請求會**隨機拿到新舊兩種版本**：
 
-   ```text
-   https://docs.google.com/spreadsheets/d/e/......../pub?gid=0&single=true&output=csv
-   ```
+```text
+第 1 次  資料列數: 0
+第 2 次  資料列數: 0
+第 3 次  資料列數: 3
+第 4 次  資料列數: 0
+第 5 次  資料列數: 3
+```
 
-發布 CSV 代表知道網址的人可以讀取評分內容；不要在評語或評審名稱存放個資或敏感資訊。
+使用者送出評分後重新整理，有機率看到自己的評分消失。加上 `&_=timestamp` 之類的 cache-busting 參數無效，過期發生在 Google 節點之間而非瀏覽器。
+
+現在改由 `doGet` 直接讀試算表回傳 JSON，沒有快取問題，另外兩個好處是試算表不必公開發布，而且前端少一個 PapaParse 相依。
+
+**若你之前已經發布過 CSV，可以到「檔案 → 共用 → 發布到網路」按「停止發布」**，減少不必要的公開曝光。
 
 ## 4. 填入前端網址
 
 開啟 `index.html`，找到：
 
 ```js
-const CSV_URL = "YOUR_PUBLISHED_GOOGLE_SHEET_CSV_URL";
 const GAS_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
 ```
 
-分別換成第 3 步的 CSV 網址與第 2 步的 `/exec` 網址。店家、人員或推薦品項也可在同一檔案的 `SHOPS`、評審 `<option>` 清單中調整。
+換成第 2 步的 `/exec` 網址。店家、人員或推薦品項也可在同一檔案的 `SHOPS`、評審 `<option>` 清單中調整。
 
 重要：`SHOPS` 中每家的 `id` 是評分關聯鍵。正式開始收資料後，不要任意修改既有 ID，否則舊評分不會歸到該店家。
 
@@ -86,7 +97,7 @@ const GAS_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
 python3 -m http.server 8000
 ```
 
-再開啟 `http://localhost:8000`。尚未填入兩個網址時，介面仍可預覽，但不會讀寫評分。
+再開啟 `http://localhost:8000`。尚未填入 `GAS_URL` 時，介面仍可預覽，但不會讀寫評分。
 
 ## 6. 部署 GitHub Pages
 
@@ -138,6 +149,5 @@ magick image/main_post.jpg \
 ## 使用與維護提醒
 
 - 店家營業時間可能異動，活動前請向店家確認；頁面資料可直接在 `SHOPS` 更新。
-- GitHub Pages 與發布的 CSV 都是公開資源，GAS Web App 也允許匿名寫入。若是公開大型活動，建議再加入 CAPTCHA、寫入頻率限制或改用有驗證的後端。
+- GitHub Pages 是公開資源，GAS Web App 也允許匿名讀寫。試算表本身維持私人，但拿到 `/exec` 網址的人可以讀取全部評分並寫入新資料。若是公開大型活動，建議再加入 CAPTCHA、寫入頻率限制或改用有驗證的後端。
 - 前端會忽略不在 1–5 的值，並在平均計算時排除 N/A。
-- 若資料沒有立即更新，Google 發布 CSV 可能有短暫快取，稍後重新整理即可。
