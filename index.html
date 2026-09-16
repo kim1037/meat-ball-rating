@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="彰化肉圓馬拉松：記錄一日肉圓巡禮、多人評分與六大指標統計。">
+  <meta name="theme-color" content="#b22222">
+  <title>2026彰化肉圓馬拉松</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&amp;family=Noto+Serif+TC:wght@700;900&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --brick: #b22222;
+      --brick-dark: #7f1717;
+      --gold: #e5a638;
+      --gold-light: #f4cf70;
+      --teal: #1d5a6c;
+      --teal-dark: #113b47;
+      --paper: #fbf6ed;
+      --paper-deep: #efe2cc;
+      --ink: #2d2924;
+      --muted: #6f665c;
+      --line: #cbb99d;
+      --white: #fffdf7;
+      --shadow: 7px 7px 0 rgba(45, 41, 36, .16);
+      --radius: 12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Noto Sans TC", system-ui, sans-serif;
+      background-color: var(--paper);
+      background-image:
+        radial-gradient(rgba(82, 60, 36, .08) .8px, transparent .8px),
+        linear-gradient(90deg, rgba(178, 34, 34, .025) 50%, transparent 50%);
+      background-size: 7px 7px, 42px 100%;
+      min-height: 100vh;
+    }
+
+    body.modal-open { overflow: hidden; }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      top: 8px;
+      left: 8px;
+      padding: 8px 12px;
+      color: white;
+      background: var(--teal-dark);
+      transform: translateY(-140%);
+      transition: transform .2s;
+    }
+
+    .skip-link:focus { transform: translateY(0); }
+
+    .hero {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      padding: 36px 20px 72px;
+      color: var(--paper);
+      background:
+        linear-gradient(rgba(17, 59, 71, .91), rgba(17, 59, 71, .96)),
+        repeating-linear-gradient(90deg, transparent 0 22px, rgba(255,255,255,.1) 22px 24px);
+      border-bottom: 8px solid var(--gold);
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      width: 240px;
+      height: 240px;
+      border: 2px dashed rgba(229, 166, 56, .3);
+      border-radius: 50%;
+    }
+
+    .hero::before { top: -130px; left: -75px; }
+    .hero::after { right: -55px; bottom: -160px; }
+
+    .hero-inner {
+      width: min(1180px, 100%);
+      margin-inline: auto;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      color: var(--gold-light);
+      font-size: .8rem;
+      font-weight: 900;
+      letter-spacing: .28em;
+    }
+
+    .eyebrow::before, .eyebrow::after {
+      content: "";
+      width: 28px;
+      height: 2px;
+      background: currentColor;
+    }
+
+    .signboard {
+      position: relative;
+      width: fit-content;
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 17px 32px 21px;
+      color: var(--paper);
+      font-family: "Noto Serif TC", serif;
+      background: var(--brick);
+      border: 4px solid var(--gold);
+      outline: 2px solid var(--brick);
+      box-shadow: 0 0 0 9px rgba(229, 166, 56, .17), 8px 9px 0 rgba(0,0,0,.24);
+      transform: rotate(-.7deg);
+    }
+
+    .signboard::before, .signboard::after {
+      content: "◆";
+      position: absolute;
+      top: 50%;
+      color: var(--gold-light);
+      font-size: .8rem;
+      transform: translateY(-50%);
+    }
+
+    .signboard::before { left: 10px; }
+    .signboard::after { right: 10px; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 7vw, 4.7rem);
+      line-height: 1.08;
+      letter-spacing: .06em;
+      text-shadow: 3px 3px 0 var(--teal-dark);
+    }
+
+    .soul-slogan {
+      position: relative;
+      display: table;
+      margin: 26px auto 0;
+      padding: 7px 22px 9px;
+      color: var(--teal-dark);
+      font-family: "Noto Serif TC", serif;
+      font-size: clamp(1.2rem, 3.5vw, 1.75rem);
+      font-weight: 900;
+      letter-spacing: .14em;
+      background: var(--gold-light);
+      border: 2px solid var(--ink);
+      box-shadow: 4px 4px 0 var(--brick);
+      transform: rotate(.7deg);
+    }
+
+    .hero-subtitle {
+      max-width: 630px;
+      margin: 20px auto 0;
+      color: #f4ead8;
+      font-size: clamp(.92rem, 2.3vw, 1.1rem);
+      line-height: 1.9;
+    }
+
+    .route-stamp {
+      display: inline-block;
+      margin-top: 22px;
+      padding: 7px 14px;
+      color: var(--gold-light);
+      font-weight: 900;
+      letter-spacing: .12em;
+      border: 2px solid currentColor;
+      border-radius: 4px;
+      transform: rotate(2deg);
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: -38px auto 70px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .marathon-bar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 20px 24px;
+      background: var(--gold);
+      border: 3px solid var(--ink);
+      box-shadow: var(--shadow);
+    }
+
+    .marathon-bar h2 {
+      margin: 0;
+      font-family: "Noto Serif TC", serif;
+      font-size: clamp(1.15rem, 3vw, 1.55rem);
+    }
+
+    .marathon-bar p { margin: 5px 0 0; font-size: .88rem; }
+
+    .total-badge {
+      min-width: 114px;
+      padding: 8px 12px;
+      color: var(--paper);
+      text-align: center;
+      background: var(--teal);
+      border: 2px solid var(--ink);
+      transform: rotate(1deg);
+    }
+
+    .total-badge strong { display: block; font-size: 1.55rem; line-height: 1.1; }
+    .total-badge span { font-size: .73rem; font-weight: 700; letter-spacing: .1em; }
+
+    .notice {
+      display: none;
+      gap: 10px;
+      align-items: flex-start;
+      margin: 25px 0 -4px;
+      padding: 12px 16px;
+      color: var(--teal-dark);
+      font-size: .88rem;
+      line-height: 1.7;
+      background: #e8f1ef;
+      border: 2px dashed var(--teal);
+    }
+
+    .notice.show { display: flex; }
+    .notice strong { white-space: nowrap; }
+
+    .section-heading {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin: 42px 0 22px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-family: "Noto Serif TC", serif;
+      font-size: clamp(1.45rem, 4vw, 2rem);
+      white-space: nowrap;
+    }
+
+    .section-heading::after {
+      content: "";
+      height: 3px;
+      flex: 1;
+      background: repeating-linear-gradient(90deg, var(--brick) 0 12px, transparent 12px 20px);
+    }
+
+    .shop-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .shop-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 22px;
+      background: var(--white);
+      border: 2px solid var(--ink);
+      box-shadow: 5px 6px 0 var(--line);
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .shop-card:nth-child(3n + 2) { transform: translateY(8px); }
+    .shop-card:hover { transform: translate(-2px, -3px); box-shadow: 8px 9px 0 var(--line); }
+
+    .card-index {
+      position: absolute;
+      top: -12px;
+      right: 13px;
+      min-width: 46px;
+      padding: 5px 8px;
+      color: var(--paper);
+      font-weight: 900;
+      text-align: center;
+      background: var(--brick);
+      border: 2px solid var(--ink);
+      transform: rotate(3deg);
+    }
+
+    .shop-type {
+      width: fit-content;
+      margin-bottom: 10px;
+      color: var(--brick);
+      font-size: .74rem;
+      font-weight: 900;
+      letter-spacing: .15em;
+    }
+
+    .shop-card h3 {
+      margin: 0;
+      padding-right: 35px;
+      font-family: "Noto Serif TC", serif;
+      font-size: 1.48rem;
+      line-height: 1.3;
+    }
+
+    .rating-summary {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      margin: 14px 0;
+      padding: 10px 12px;
+      color: var(--brick-dark);
+      background: #f8ead1;
+      border-left: 5px solid var(--gold);
+    }
+
+    .rating-summary strong { font-size: 1.38rem; }
+    .rating-summary .stars { color: var(--gold); letter-spacing: .06em; }
+    .rating-summary small { margin-left: auto; color: var(--muted); }
+
+    .shop-details { display: grid; gap: 10px; margin: 0 0 19px; }
+    .detail-row { display: grid; grid-template-columns: 22px 1fr; gap: 7px; font-size: .87rem; line-height: 1.55; }
+    .detail-row .icon { color: var(--teal); font-weight: 900; text-align: center; }
+    .detail-row a { text-decoration-color: var(--gold); text-underline-offset: 3px; }
+    .recommend { font-weight: 700; color: var(--teal-dark); }
+
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: auto;
+    }
+
+    .btn {
+      min-height: 44px;
+      padding: 10px 12px;
+      font-weight: 900;
+      border: 2px solid var(--ink);
+      border-radius: 0;
+      box-shadow: 3px 3px 0 var(--ink);
+      transition: transform .12s, box-shadow .12s;
+    }
+
+    .btn:hover { transform: translate(1px, 1px); box-shadow: 2px 2px 0 var(--ink); }
+    .btn:active { transform: translate(3px, 3px); box-shadow: none; }
+    .btn:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+    .btn-primary { color: white; background: var(--brick); }
+    .btn-secondary { color: white; background: var(--teal); }
+    .btn-wide { width: 100%; }
+    .btn[disabled] { cursor: wait; opacity: .65; }
+
+    footer {
+      padding: 38px 20px;
+      color: #eadfcd;
+      text-align: center;
+      background: var(--teal-dark);
+      border-top: 7px solid var(--gold);
+    }
+
+    footer strong { color: var(--gold-light); font-family: "Noto Serif TC", serif; }
+    footer p { margin: 6px 0; font-size: .84rem; }
+
+    dialog {
+      width: min(680px, calc(100% - 24px));
+      max-height: min(88vh, 850px);
+      padding: 0;
+      color: var(--ink);
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      box-shadow: 10px 12px 0 rgba(0,0,0,.35);
+      overflow: hidden;
+    }
+
+    dialog[open] { animation: modal-in .18s ease-out; }
+    dialog::backdrop { background: rgba(17, 38, 41, .73); backdrop-filter: blur(3px); }
+
+    @keyframes modal-in {
+      from { opacity: 0; transform: translateY(14px) scale(.98); }
+    }
+
+    .modal-header {
+      position: sticky;
+      z-index: 3;
+      top: 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 18px 20px;
+      color: white;
+      background: var(--teal);
+      border-bottom: 4px solid var(--gold);
+    }
+
+    .modal-header h2 { margin: 0; font-family: "Noto Serif TC", serif; font-size: 1.5rem; }
+    .modal-header p { margin: 4px 0 0; color: #dce8e7; font-size: .84rem; }
+
+    .close-btn {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 auto;
+      color: var(--ink);
+      font-size: 1.35rem;
+      font-weight: 900;
+      background: var(--gold);
+      border: 2px solid var(--ink);
+    }
+
+    .modal-body { max-height: calc(88vh - 83px); padding: 22px; overflow-y: auto; }
+    .field { margin-bottom: 20px; }
+    .field > label, .field-label { display: block; margin-bottom: 8px; font-size: .91rem; font-weight: 900; }
+    .required { color: var(--brick); }
+
+    select, input[type="text"] {
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 12px;
+      color: var(--ink);
+      background: var(--white);
+      border: 2px solid var(--ink);
+      border-radius: 0;
+    }
+
+    .score-list { display: grid; gap: 12px; margin-bottom: 20px; }
+
+    .score-field {
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      margin: 0;
+      padding: 10px 12px;
+      background: rgba(229, 166, 56, .11);
+      border: 1px solid var(--line);
+    }
+
+    .score-field legend { padding: 0; font-size: .88rem; font-weight: 900; }
+    .score-options {
+      display: flex;
+      flex-flow: row nowrap;
+      gap: 5px;
+      align-items: center;
+      width: 100%;
+      min-width: 0;
+      overflow-x: auto;
+      padding: 3px 3px 6px;
+    }
+    .score-options input { position: absolute; opacity: 0; pointer-events: none; }
+    .score-options label {
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      min-width: 38px;
+      height: 33px;
+      padding: 0 6px;
+      color: #7c6c50;
+      font-weight: 900;
+      background: var(--white);
+      border: 1px solid var(--line);
+      transition: .12s;
+    }
+
+    .score-options label:not(.na-label) { color: #ae7713; font-size: 1.1rem; }
+    .score-options input:checked + label { color: white; background: var(--brick); border-color: var(--ink); transform: translateY(-2px); box-shadow: 2px 2px 0 var(--ink); }
+    .score-options input:focus-visible + label { outline: 3px solid var(--teal); outline-offset: 2px; }
+    .score-options .na-label { margin-left: 4px; font-size: .72rem; }
+
+    .form-status { min-height: 24px; margin: -7px 0 10px; font-size: .85rem; font-weight: 700; }
+    .form-status.error { color: var(--brick-dark); }
+    .form-status.success { color: #1f6a46; }
+
+    .stats-overview {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 18px;
+      padding: 15px;
+      background: var(--white);
+      border: 2px solid var(--ink);
+    }
+
+    .big-score { text-align: center; border-right: 2px dashed var(--line); }
+    .big-score strong { display: block; color: var(--brick); font-family: "Noto Serif TC", serif; font-size: 2.6rem; line-height: 1; }
+    .big-score span { color: var(--gold); font-size: 1.2rem; }
+    .big-score small { display: block; margin-top: 6px; color: var(--muted); }
+
+    .dimension-mini { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .dimension-mini div { font-size: .74rem; color: var(--muted); }
+    .dimension-mini strong { display: block; color: var(--teal-dark); font-size: 1rem; }
+
+    .chart-wrap {
+      position: relative;
+      height: 340px;
+      margin: 0 0 26px;
+      padding: 12px;
+      background: var(--white);
+      border: 1px solid var(--line);
+    }
+
+    .history-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 12px;
+      font-family: "Noto Serif TC", serif;
+      font-size: 1.2rem;
+    }
+
+    .history-title::after { content: ""; height: 2px; flex: 1; background: var(--gold); }
+    .history-list { display: grid; gap: 12px; }
+
+    .history-item {
+      padding: 14px;
+      background: var(--white);
+      border-left: 5px solid var(--teal);
+      box-shadow: 2px 2px 0 var(--line);
+    }
+
+    .history-head { display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: space-between; align-items: baseline; }
+    .history-head strong { color: var(--brick-dark); }
+    .history-head time { color: var(--muted); font-size: .75rem; }
+    .score-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+    .score-chip { padding: 3px 7px; color: var(--teal-dark); font-size: .72rem; background: #e7efed; border: 1px solid #aabfba; }
+    .history-comment { margin: 10px 0 0; font-size: .86rem; line-height: 1.6; }
+    .empty-state { padding: 28px 15px; color: var(--muted); text-align: center; border: 2px dashed var(--line); }
+
+    .toast {
+      position: fixed;
+      z-index: 50;
+      right: 18px;
+      bottom: 18px;
+      max-width: min(390px, calc(100% - 36px));
+      padding: 13px 18px;
+      color: white;
+      font-weight: 700;
+      line-height: 1.5;
+      background: var(--teal-dark);
+      border: 2px solid var(--gold);
+      box-shadow: 5px 5px 0 rgba(0,0,0,.3);
+      transform: translateY(130%);
+      opacity: 0;
+      transition: .25s;
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { background: var(--brick-dark); }
+
+    @media (min-width: 1120px) {
+      .shop-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .shop-card:nth-child(3n + 2) { transform: none; }
+      .shop-card:nth-child(even) { transform: translateY(8px); }
+      .shop-card:hover { transform: translate(-2px, -3px); }
+    }
+
+    @media (max-width: 820px) {
+      .shop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .shop-card:nth-child(n) { transform: none; }
+      .score-field { grid-template-columns: 1fr; gap: 7px; }
+    }
+
+    @media (max-width: 560px) {
+      .hero { padding-top: 28px; }
+      .signboard { padding-inline: 23px; }
+      main { width: min(100% - 22px, 1180px); }
+      .marathon-bar { grid-template-columns: 1fr; padding: 17px; }
+      .total-badge { width: 100%; }
+      .shop-grid { grid-template-columns: 1fr; gap: 18px; }
+      .shop-card { padding: 19px; }
+      .card-actions { grid-template-columns: 1fr; }
+      dialog { width: calc(100% - 14px); max-height: 94vh; }
+      .modal-body { max-height: calc(94vh - 83px); padding: 17px; }
+      .stats-overview { grid-template-columns: 1fr; }
+      .big-score { padding-bottom: 12px; border-right: 0; border-bottom: 2px dashed var(--line); }
+      .chart-wrap { height: 290px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#shops">跳到店家列表</a>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">一日限定・美食巡禮</p>
+      <div class="signboard"><h1>彰化肉圓馬拉松</h1></div>
+      <p class="soul-slogan">跑一份馬，拉一份情</p>
+      <p class="hero-subtitle">一站一口味，沿著彰化街巷完成這場最有滋味的馬拉松。</p>
+      <span class="route-stamp">CHANGHUA · 肉圓制霸</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="marathon-bar" aria-label="巡禮概況">
+      <div>
+        <h2>今日路線｜老城肉圓大集合</h2>
+        <p>每店皆可獨立評分；N/A 項目不列入平均計算。</p>
+      </div>
+      <div class="total-badge"><strong id="ratingCount">0</strong><span>份有效評分</span></div>
+    </section>
+
+    <div id="setupNotice" class="notice" role="status">
+      <strong>設定提醒</strong>
+      <span>目前為尚未連線狀態。請依 README 將 index.html 內的 CSV_URL 與 GAS_URL 換成你的網址，即可啟用雲端讀寫。</span>
+    </div>
+
+    <section id="shops" aria-labelledby="shopsTitle">
+      <div class="section-heading"><h2 id="shopsTitle">肉圓補給站</h2></div>
+      <div id="shopGrid" class="shop-grid"></div>
+    </section>
+  </main>
+
+  <footer>
+    <strong>彰化肉圓馬拉松</strong>
+    <p>評分是口味紀錄，不是絕對排名；請尊重每一家店的手藝。</p>
+    <p>店家營業資訊可能異動，出發前請再次向店家確認。</p>
+  </footer>
+
+  <dialog id="ratingDialog" aria-labelledby="ratingTitle">
+    <div class="modal-header">
+      <div><h2 id="ratingTitle">我要評分</h2><p id="ratingShopName"></p></div>
+      <button class="close-btn" type="button" data-close aria-label="關閉評分視窗">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="ratingForm">
+        <input id="ratingShopId" name="shopId" type="hidden">
+        <div class="field">
+          <label for="reviewer">評分人員 <span class="required" aria-hidden="true">＊</span></label>
+          <select id="reviewer" name="reviewer" required>
+            <option value="">請選擇評審</option>
+            <option>評審A</option><option>評審B</option><option>評審C</option><option>評審D</option><option>評審E</option>
+          </select>
+        </div>
+        <span class="field-label">六項評分 <span class="required" aria-hidden="true">＊</span></span>
+        <div id="scoreFields" class="score-list"></div>
+        <div class="field">
+          <label for="comment">簡短評語</label>
+          <input id="comment" name="comment" type="text" maxlength="120" placeholder="例：外皮酥脆，醬汁甜香不膩">
+        </div>
+        <p id="formStatus" class="form-status" aria-live="polite"></p>
+        <button id="submitRating" class="btn btn-primary btn-wide" type="submit">送出這一票</button>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="statsDialog" aria-labelledby="statsTitle">
+    <div class="modal-header">
+      <div><h2 id="statsTitle">店家評分統計</h2><p id="statsShopName"></p></div>
+      <button class="close-btn" type="button" data-close aria-label="關閉統計視窗">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="statsOverview" class="stats-overview"></div>
+      <div class="chart-wrap"><canvas id="radarChart" aria-label="六項平均分雷達圖"></canvas></div>
+      <h3 class="history-title">歷史評分與評語</h3>
+      <div id="historyList" class="history-list"></div>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+  <script>
+    "use strict";
+
+    // ===== 部署時只需要修改這兩行 =====
+    const CSV_URL = "YOUR_PUBLISHED_GOOGLE_SHEET_CSV_URL";
+    const GAS_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
+
+    // 店家清單可直接在此增刪。id 必須唯一，且部署後不宜任意變更。
+    const SHOPS = [
+      { id: "azhang", name: "老担阿璋肉圓", type: "經典油泡派", address: "彰化市長安街144號", hours: "09:30–22:00", recommend: "肉圓、龍骨髓湯" },
+      { id: "asan", name: "阿三肉圓", type: "外酥內Q派", address: "彰化市三民路242號", hours: "10:30–19:00（週一公休、週二隔週休）", recommend: "肉圓、龍骨髓湯" },
+      { id: "beimenkou", name: "北門口肉圓", type: "高溫酥炸派", address: "彰化市中正路一段494號", hours: "11:00–19:00（週四公休）", recommend: "大肉圓、香菇肉圓" },
+      { id: "zhengchanghua", name: "正彰化肉圓", type: "新古早味派", address: "彰化市陳稜路203號", hours: "10:00–20:00", recommend: "香菇肉圓、蛋黃肉圓" },
+      { id: "laopai_azhang", name: "老牌阿章肉圓", type: "七十年老味道", address: "彰化市長安街128號", hours: "10:00–19:30（週二公休）", recommend: "肉圓、肉羹、麵線糊" },
+      { id: "shaorouyuan", name: "燒肉圓", type: "在地特色派", address: "彰化市東民街89號", hours: "10:30–16:30", recommend: "燒肉圓、綜合湯" },
+      { id: "ximen", name: "西門彰化肉圓", type: "老城傳統派", address: "彰化市中正路二段188號", hours: "營業時間請洽店家", recommend: "肉圓、湯品" },
+      { id: "dazhu", name: "大竹肉圓", type: "巷口在地派", address: "彰化市彰南路二段106號", hours: "營業時間請洽店家", recommend: "肉圓、貢丸湯" }
+    ];
+
+    const DIMENSIONS = [
+      { key: "skin", label: "外皮" },
+      { key: "filling", label: "內餡" },
+      { key: "sauce", label: "醬汁" },
+      { key: "soup", label: "配湯" },
+      { key: "cpValue", label: "CP值" },
+      { key: "environment", label: "環境" }
+    ];
+
+    const state = { ratings: [], chart: null, activeShopId: null };
+    const els = {
+      grid: document.querySelector("#shopGrid"),
+      count: document.querySelector("#ratingCount"),
+      notice: document.querySelector("#setupNotice"),
+      ratingDialog: document.querySelector("#ratingDialog"),
+      statsDialog: document.querySelector("#statsDialog"),
+      ratingForm: document.querySelector("#ratingForm"),
+      submit: document.querySelector("#submitRating"),
+      formStatus: document.querySelector("#formStatus"),
+      toast: document.querySelector("#toast")
+    };
+
+    function isConfigured(value) {
+      return value && !value.startsWith("YOUR_") && /^https:\/\//.test(value);
+    }
+
+    function escapeHtml(value = "") {
+      return String(value).replace(/[&<>'"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
+    }
+
+    function validScore(value) {
+      const score = Number(value);
+      return Number.isFinite(score) && score >= 1 && score <= 5 ? score : null;
+    }
+
+    function shopRatings(shopId) {
+      return state.ratings.filter(item => item.shopId === shopId);
+    }
+
+    function calculateStats(shopId) {
+      const rows = shopRatings(shopId);
+      const dimensions = {};
+      const allScores = [];
+      DIMENSIONS.forEach(({ key }) => {
+        const values = rows.map(row => validScore(row[key])).filter(value => value !== null);
+        dimensions[key] = values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+        allScores.push(...values);
+      });
+      return {
+        count: rows.length,
+        overall: allScores.length ? allScores.reduce((sum, value) => sum + value, 0) / allScores.length : null,
+        dimensions
+      };
+    }
+
+    function stars(score) {
+      if (score === null) return "☆☆☆☆☆";
+      const rounded = Math.round(score);
+      return "★".repeat(rounded) + "☆".repeat(5 - rounded);
+    }
+
+    function renderCards() {
+      els.grid.innerHTML = SHOPS.map((shop, index) => {
+        const stats = calculateStats(shop.id);
+        const scoreLabel = stats.overall === null ? "尚未評分" : `${stats.overall.toFixed(1)} ★`;
+        return `
+          <article class="shop-card">
+            <span class="card-index">${String(index + 1).padStart(2, "0")}</span>
+            <span class="shop-type">${escapeHtml(shop.type)}</span>
+            <h3>${escapeHtml(shop.name)}</h3>
+            <div class="rating-summary" aria-label="${escapeHtml(shop.name)}平均分數">
+              <strong>${scoreLabel}</strong>
+              <span class="stars" aria-hidden="true">${stars(stats.overall)}</span>
+              <small>${stats.count} 票</small>
+            </div>
+            <div class="shop-details">
+              <div class="detail-row"><span class="icon" aria-hidden="true">⌖</span><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.address)}" target="_blank" rel="noopener noreferrer">${escapeHtml(shop.address)}</a></div>
+              <div class="detail-row"><span class="icon" aria-hidden="true">◷</span><span>${escapeHtml(shop.hours)}</span></div>
+              <div class="detail-row recommend"><span class="icon" aria-hidden="true">印</span><span>推薦：${escapeHtml(shop.recommend)}</span></div>
+            </div>
+            <div class="card-actions">
+              <button class="btn btn-primary" type="button" data-rate="${shop.id}">我要評分</button>
+              <button class="btn btn-secondary" type="button" data-stats="${shop.id}">看統計圖表</button>
+            </div>
+          </article>`;
+      }).join("");
+      els.count.textContent = state.ratings.length;
+    }
+
+    function renderScoreFields() {
+      document.querySelector("#scoreFields").innerHTML = DIMENSIONS.map(({ key, label }) => `
+        <fieldset class="score-field">
+          <legend>${label}</legend>
+          <div class="score-options">
+            ${[1, 2, 3, 4, 5].map(value => `
+              <input id="${key}-${value}" type="radio" name="${key}" value="${value}" ${value === 1 ? "required" : ""}>
+              <label for="${key}-${value}" title="${value} 分" aria-label="${label} ${value} 分">${value}★</label>`).join("")}
+            <input id="${key}-na" type="radio" name="${key}" value="NA">
+            <label class="na-label" for="${key}-na">N/A</label>
+          </div>
+        </fieldset>`).join("");
+    }
+
+    function normalizeRow(row) {
+      const get = (...keys) => {
+        const key = keys.find(candidate => Object.prototype.hasOwnProperty.call(row, candidate));
+        return key ? row[key] : "";
+      };
+      return {
+        timestamp: get("timestamp", "時間戳記"),
+        shopId: String(get("shopId", "店家ID")).trim(),
+        shopName: String(get("shopName", "店家名稱")).trim(),
+        reviewer: String(get("reviewer", "評分人員")).trim(),
+        skin: validScore(get("skin", "外皮")),
+        filling: validScore(get("filling", "內餡")),
+        sauce: validScore(get("sauce", "醬汁")),
+        soup: validScore(get("soup", "配湯")),
+        cpValue: validScore(get("cpValue", "CP值")),
+        environment: validScore(get("environment", "用餐環境", "環境")),
+        comment: String(get("comment", "簡短評語", "評語")).trim()
+      };
+    }
+
+    function loadRatings() {
+      if (!isConfigured(CSV_URL)) {
+        els.notice.classList.add("show");
+        return;
+      }
+      if (typeof Papa === "undefined") {
+        showToast("PapaParse 載入失敗，請確認網路連線。", true);
+        return;
+      }
+      Papa.parse(CSV_URL, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete(results) {
+          const knownIds = new Set(SHOPS.map(shop => shop.id));
+          state.ratings = results.data.map(normalizeRow).filter(row => knownIds.has(row.shopId) && row.reviewer);
+          renderCards();
+          if (results.errors.length) console.warn("CSV 部分資料無法解析：", results.errors);
+        },
+        error(error) {
+          console.error(error);
+          showToast("評分資料讀取失敗，請確認 CSV 已發布到網路。", true);
+        }
+      });
+    }
+
+    function findShop(shopId) {
+      return SHOPS.find(shop => shop.id === shopId);
+    }
+
+    function openRating(shopId) {
+      const shop = findShop(shopId);
+      if (!shop) return;
+      state.activeShopId = shopId;
+      els.ratingForm.reset();
+      els.formStatus.textContent = "";
+      els.formStatus.className = "form-status";
+      document.querySelector("#ratingShopId").value = shop.id;
+      document.querySelector("#ratingShopName").textContent = shop.name;
+      openDialog(els.ratingDialog);
+    }
+
+    function dateLabel(value) {
+      const date = new Date(value);
+      if (!value || Number.isNaN(date.getTime())) return "日期未記錄";
+      return new Intl.DateTimeFormat("zh-TW", { dateStyle: "medium", timeStyle: "short" }).format(date);
+    }
+
+    function renderStats(shopId) {
+      const shop = findShop(shopId);
+      if (!shop) return;
+      state.activeShopId = shopId;
+      const stats = calculateStats(shopId);
+      const rows = shopRatings(shopId).slice().sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+      document.querySelector("#statsShopName").textContent = shop.name;
+      document.querySelector("#statsOverview").innerHTML = `
+        <div class="big-score">
+          <strong>${stats.overall === null ? "—" : stats.overall.toFixed(1)}</strong>
+          <span aria-hidden="true">${stats.overall === null ? "☆☆☆☆☆" : "★"}</span>
+          <small>${stats.count} 份評分</small>
+        </div>
+        <div class="dimension-mini">
+          ${DIMENSIONS.map(({ key, label }) => `<div>${label}<strong>${stats.dimensions[key] === null ? "N/A" : stats.dimensions[key].toFixed(1)}</strong></div>`).join("")}
+        </div>`;
+
+      document.querySelector("#historyList").innerHTML = rows.length ? rows.map(row => `
+        <article class="history-item">
+          <div class="history-head"><strong>${escapeHtml(row.reviewer)}</strong><time>${escapeHtml(dateLabel(row.timestamp))}</time></div>
+          <div class="score-chips">
+            ${DIMENSIONS.map(({ key, label }) => `<span class="score-chip">${label} ${row[key] === null ? "N/A" : `${row[key]}★`}</span>`).join("")}
+          </div>
+          ${row.comment ? `<p class="history-comment">「${escapeHtml(row.comment)}」</p>` : ""}
+        </article>`).join("") : `<div class="empty-state">還沒有評分紀錄。搶先留下這家店的第一票吧！</div>`;
+
+      openDialog(els.statsDialog);
+      requestAnimationFrame(() => drawChart(stats));
+    }
+
+    function drawChart(stats) {
+      if (state.chart) state.chart.destroy();
+      if (typeof Chart === "undefined") {
+        document.querySelector(".chart-wrap").innerHTML = "<div class='empty-state'>Chart.js 載入失敗，請確認網路連線。</div>";
+        return;
+      }
+      const context = document.querySelector("#radarChart").getContext("2d");
+      state.chart = new Chart(context, {
+        type: "radar",
+        data: {
+          labels: DIMENSIONS.map(item => item.label),
+          datasets: [{
+            label: "平均分數",
+            data: DIMENSIONS.map(item => stats.dimensions[item.key] ?? 0),
+            backgroundColor: "rgba(178, 34, 34, .18)",
+            borderColor: "#b22222",
+            pointBackgroundColor: "#e5a638",
+            pointBorderColor: "#2d2924",
+            pointRadius: 4,
+            borderWidth: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, backdropColor: "transparent" }, grid: { color: "rgba(29,90,108,.2)" }, angleLines: { color: "rgba(29,90,108,.2)" }, pointLabels: { color: "#2d2924", font: { family: "Noto Sans TC", size: 13, weight: 700 } } } },
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: context => `${context.raw ? Number(context.raw).toFixed(1) : "尚無評分"} / 5` } } }
+        }
+      });
+    }
+
+    function openDialog(dialog) {
+      document.body.classList.add("modal-open");
+      dialog.showModal();
+    }
+
+    function closeDialog(dialog) {
+      dialog.close();
+      document.body.classList.remove("modal-open");
+    }
+
+    async function submitRating(event) {
+      event.preventDefault();
+      if (!els.ratingForm.reportValidity()) return;
+      if (!isConfigured(GAS_URL)) {
+        els.formStatus.textContent = "尚未設定 GAS_URL，請先依 README 完成部署設定。";
+        els.formStatus.className = "form-status error";
+        return;
+      }
+
+      const data = new FormData(els.ratingForm);
+      const shop = findShop(data.get("shopId"));
+      const payload = {
+        shopId: shop.id,
+        shopName: shop.name,
+        reviewer: String(data.get("reviewer")),
+        comment: String(data.get("comment") || "").trim()
+      };
+      DIMENSIONS.forEach(({ key }) => { payload[key] = data.get(key) === "NA" ? null : Number(data.get(key)); });
+
+      els.submit.disabled = true;
+      els.submit.textContent = "正在送出…";
+      els.formStatus.textContent = "";
+      try {
+        const response = await fetch(GAS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload),
+          redirect: "follow"
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const result = await response.json();
+        if (!result.ok) throw new Error(result.message || "伺服器拒絕寫入");
+
+        state.ratings.push({ ...payload, timestamp: result.timestamp || new Date().toISOString() });
+        renderCards();
+        closeDialog(els.ratingDialog);
+        showToast(`已收到 ${payload.reviewer} 對「${shop.name}」的評分！`);
+      } catch (error) {
+        console.error(error);
+        els.formStatus.textContent = "送出失敗。請確認 Web App 權限、GAS_URL 與網路連線後再試一次。";
+        els.formStatus.className = "form-status error";
+      } finally {
+        els.submit.disabled = false;
+        els.submit.textContent = "送出這一票";
+      }
+    }
+
+    let toastTimer;
+    function showToast(message, isError = false) {
+      clearTimeout(toastTimer);
+      els.toast.textContent = message;
+      els.toast.className = `toast show${isError ? " error" : ""}`;
+      toastTimer = setTimeout(() => { els.toast.className = "toast"; }, 4300);
+    }
+
+    els.grid.addEventListener("click", event => {
+      const rateButton = event.target.closest("[data-rate]");
+      const statsButton = event.target.closest("[data-stats]");
+      if (rateButton) openRating(rateButton.dataset.rate);
+      if (statsButton) renderStats(statsButton.dataset.stats);
+    });
+
+    document.querySelectorAll("[data-close]").forEach(button => {
+      button.addEventListener("click", () => closeDialog(button.closest("dialog")));
+    });
+
+    [els.ratingDialog, els.statsDialog].forEach(dialog => {
+      dialog.addEventListener("click", event => {
+        const rect = dialog.getBoundingClientRect();
+        const outside = event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom;
+        if (outside) closeDialog(dialog);
+      });
+      dialog.addEventListener("close", () => document.body.classList.remove("modal-open"));
+    });
+
+    els.ratingForm.addEventListener("submit", submitRating);
+    if (!isConfigured(CSV_URL) || !isConfigured(GAS_URL)) els.notice.classList.add("show");
+    renderScoreFields();
+    renderCards();
+    loadRatings();
+  </script>
+</body>
+</html>
