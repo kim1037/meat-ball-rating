@@ -3,9 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="彰化肉圓馬拉松：記錄一日肉圓巡禮、多人評分與六大指標統計。">
+  <meta name="description" content="彰化肉圓馬拉松：跑一份馬，拉一份情。記錄一日肉圓巡禮、多人評分與六大指標統計。">
   <meta name="theme-color" content="#b22222">
   <title>2026彰化肉圓馬拉松</title>
+
+  <!-- 分享預覽卡（LINE / Facebook / Threads 皆讀 Open Graph）。換 repo 或自訂網域時，這裡的絕對網址要一起改 -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="彰化肉圓馬拉松">
+  <meta property="og:locale" content="zh_TW">
+  <meta property="og:title" content="2026彰化肉圓馬拉松｜跑一份馬，拉一份情">
+  <meta property="og:description" content="六站肉圓巡禮，一站一口味。現場評分、即時統計，看看今年誰是彰化肉圓之王。">
+  <meta property="og:url" content="https://kim1037.github.io/meat-ball-rating/">
+  <meta property="og:image" content="https://kim1037.github.io/meat-ball-rating/image/og-poster.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="彰化肉圓馬拉松活動主視覺，擬人化肉圓與跑者奔跑於彰化地標前">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="2026彰化肉圓馬拉松｜跑一份馬，拉一份情">
+  <meta name="twitter:description" content="六站肉圓巡禮，一站一口味。現場評分、即時統計，看看今年誰是彰化肉圓之王。">
+  <meta name="twitter:image" content="https://kim1037.github.io/meat-ball-rating/image/og-poster.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&amp;family=Noto+Serif+TC:wght@700;900&amp;display=swap" rel="stylesheet">
@@ -380,7 +397,11 @@
       overflow: hidden;
     }
 
-    dialog[open] { animation: modal-in .18s ease-out; }
+    dialog[open] {
+      display: flex;
+      flex-direction: column;
+      animation: modal-in .18s ease-out;
+    }
     dialog::backdrop { background: rgba(17, 38, 41, .73); backdrop-filter: blur(3px); }
 
     @keyframes modal-in {
@@ -388,10 +409,9 @@
     }
 
     .modal-header {
-      position: sticky;
       z-index: 3;
-      top: 0;
       display: flex;
+      flex: 0 0 auto;
       justify-content: space-between;
       gap: 16px;
       align-items: flex-start;
@@ -415,7 +435,7 @@
       border: 2px solid var(--ink);
     }
 
-    .modal-body { max-height: calc(88vh - 83px); padding: 22px; overflow-y: auto; }
+    .modal-body { flex: 1 1 auto; min-height: 0; padding: 22px; overflow-y: auto; overscroll-behavior: contain; }
     .field { margin-bottom: 20px; }
     .field > label, .field-label { display: block; margin-bottom: 8px; font-size: .91rem; font-weight: 900; }
     .required { color: var(--brick); }
@@ -444,16 +464,16 @@
       border: 1px solid var(--line);
     }
 
-    .score-field legend { padding: 0; font-size: .88rem; font-weight: 900; }
+    .score-field legend { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .score-name { font-size: .88rem; font-weight: 900; }
     .score-options {
       display: flex;
-      flex-flow: row nowrap;
+      flex-flow: row wrap;
       gap: 5px;
       align-items: center;
       width: 100%;
       min-width: 0;
-      overflow-x: auto;
-      padding: 3px 3px 6px;
+      padding: 3px;
     }
     .score-options input { position: absolute; opacity: 0; pointer-events: none; }
     .score-options label {
@@ -579,7 +599,7 @@
       .shop-card { padding: 19px; }
       .card-actions { grid-template-columns: 1fr; }
       dialog { width: calc(100% - 14px); max-height: 94vh; }
-      .modal-body { max-height: calc(94vh - 83px); padding: 17px; }
+      .modal-body { padding: 17px; }
       .stats-overview { grid-template-columns: 1fr; }
       .big-score { padding-bottom: 12px; border-right: 0; border-bottom: 2px dashed var(--line); }
       .chart-wrap { height: 290px; }
@@ -641,7 +661,7 @@
           <label for="reviewer">評分人員 <span class="required" aria-hidden="true">＊</span></label>
           <select id="reviewer" name="reviewer" required>
             <option value="">請選擇評審</option>
-            <option>評審A</option><option>評審B</option><option>評審C</option><option>評審D</option><option>評審E</option>
+            <option>Lynn</option><option>Eric</option><option>Kim</option>
           </select>
         </div>
         <span class="field-label">六項評分 <span class="required" aria-hidden="true">＊</span></span>
@@ -683,13 +703,11 @@
     // 店家清單可直接在此增刪。id 必須唯一，且部署後不宜任意變更。
     const SHOPS = [
       { id: "azhang", name: "老担阿璋肉圓", type: "經典油泡派", address: "彰化市長安街144號", hours: "09:30–22:00", recommend: "肉圓、龍骨髓湯" },
-      { id: "asan", name: "阿三肉圓", type: "外酥內Q派", address: "彰化市三民路242號", hours: "10:30–19:00（週一公休、週二隔週休）", recommend: "肉圓、龍骨髓湯" },
-      { id: "beimenkou", name: "北門口肉圓", type: "高溫酥炸派", address: "彰化市中正路一段494號", hours: "11:00–19:00（週四公休）", recommend: "大肉圓、香菇肉圓" },
       { id: "zhengchanghua", name: "正彰化肉圓", type: "新古早味派", address: "彰化市陳稜路203號", hours: "10:00–20:00", recommend: "香菇肉圓、蛋黃肉圓" },
-      { id: "laopai_azhang", name: "老牌阿章肉圓", type: "七十年老味道", address: "彰化市長安街128號", hours: "10:00–19:30（週二公休）", recommend: "肉圓、肉羹、麵線糊" },
-      { id: "shaorouyuan", name: "燒肉圓", type: "在地特色派", address: "彰化市東民街89號", hours: "10:30–16:30", recommend: "燒肉圓、綜合湯" },
-      { id: "ximen", name: "西門彰化肉圓", type: "老城傳統派", address: "彰化市中正路二段188號", hours: "營業時間請洽店家", recommend: "肉圓、湯品" },
-      { id: "dazhu", name: "大竹肉圓", type: "巷口在地派", address: "彰化市彰南路二段106號", hours: "營業時間請洽店家", recommend: "肉圓、貢丸湯" }
+      { id: "asan", name: "阿三肉圓", type: "外酥內Q派", address: "彰化市三民路242號", hours: "10:30–19:00（週一公休、週二隔週休）", recommend: "肉圓、龍骨髓湯" },
+      { id: "beimenkou_minsheng", name: "民生路北門口肉圓", type: "北門城脆皮派", address: "彰化市民生路315號", hours: "11:00–17:30（週一、二公休）", recommend: "大肉圓、干貝肉圓" },
+      { id: "liangyuan", name: "彰化涼圓創始店", type: "冰涼冷食派", address: "彰化市南郭路一段182號", hours: "09:00–18:00", recommend: "涼圓（僅外帶）" },
+      { id: "stablefly", name: "Stable Fly 穩定飛行模式", type: "老宅咖啡收尾", address: "彰化市永樂街44巷2號", hours: "11:00–21:00（公休日各來源不一，出發前請確認）", recommend: "手沖咖啡、甜點（低消 $100／人）" }
     ];
 
     const DIMENSIONS = [
@@ -785,6 +803,7 @@
       document.querySelector("#scoreFields").innerHTML = DIMENSIONS.map(({ key, label }) => `
         <fieldset class="score-field">
           <legend>${label}</legend>
+          <span class="score-name" aria-hidden="true">${label}</span>
           <div class="score-options">
             ${[1, 2, 3, 4, 5].map(value => `
               <input id="${key}-${value}" type="radio" name="${key}" value="${value}" ${value === 1 ? "required" : ""}>

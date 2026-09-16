@@ -6,6 +6,8 @@
 
 - `index.html`：完整 SPA、台味復古視覺、評分表單、CSV 讀取與 Chart.js 雷達圖。
 - `google-script.js`：貼入 Google Apps Script 的後端程式。
+- `image/main_post.jpg`：活動主視覺原圖（1536×1024）。
+- `image/og-poster.jpg`：分享預覽圖（1200×630，由主視覺產生，見下方「分享預覽圖」）。
 - `README.md`：設定及部署說明。
 
 ## 1. 建立 Google 試算表
@@ -92,7 +94,7 @@ python3 -m http.server 8000
 
    ```bash
    git init
-   git add index.html google-script.js README.md
+   git add index.html google-script.js image/ README.md
    git commit -m "Build Changhua meatball marathon rating site"
    git branch -M main
    git remote add origin https://github.com/YOUR_ACCOUNT/YOUR_REPOSITORY.git
@@ -106,6 +108,32 @@ python3 -m http.server 8000
    ```text
    https://YOUR_ACCOUNT.github.io/YOUR_REPOSITORY/
    ```
+
+## 分享預覽圖
+
+貼到 LINE 群組或 Facebook 時顯示的縮圖為 `image/og-poster.jpg`（1200×630），由 `index.html` 的 Open Graph meta 指定。
+
+主視覺原圖 `image/main_post.jpg` 是 1536×1024（1.5:1），與 OG 的 1.91:1 不合。上下裁切會切到標題與碗、跑者，因此改以左右補邊（pillarbox）保留完整畫面，補邊處用主視覺本身模糊放大當底。重新產生的指令：
+
+```bash
+magick image/main_post.jpg \
+  \( -clone 0 -resize 1200x630^ -gravity center -extent 1200x630 -blur 0x30 -modulate 96,105 \) \
+  \( -clone 0 -resize 1200x630 \) \
+  -delete 0 -gravity center -composite \
+  -strip -interlace JPEG -sampling-factor 4:2:0 -quality 84 \
+  image/og-poster.jpg
+```
+
+補邊是權宜做法，主視覺實際只佔預覽卡約八成寬。若要讓畫面填滿，需按 1200×630 重新排版，而不是直接縮放。
+
+其他注意事項：
+
+- 檔案需壓在 **300 KB 以下**，LINE 對過大的圖會放棄抓取（目前約 193 KB）。
+- meta 內是絕對網址，目前寫死為 `https://kim1037.github.io/meat-ball-rating/`。換 repository 或接自訂網域時，`og:url`、`og:image`、`twitter:image` 三處都要一起改。
+- 標語以網頁版的「**跑一份馬，拉一份情**」為準。主視覺右下角目前寫「跑一場"馬"，拉一份情」，重新產圖時需更正。
+- 主視覺左下角的「報名時間 6/5–8/15」對這個網站沒有意義（站內無報名流程），重新排版時建議移除。
+
+改完 meta 後，各平台都有快取。Facebook 用 [Sharing Debugger](https://developers.facebook.com/tools/debug/) 按「Scrape Again」可強制更新；LINE 沒有公開的清快取工具，可在網址後加 `?v=2` 之類的參數繞過。
 
 ## 使用與維護提醒
 
